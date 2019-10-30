@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Birthday.DataAccess;
 using Birthday.DataAccess.Entities;
 using Birthday.Lib;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Birthday
 {
     public class Startup
     {
-        private string _user = null;
-        private string _pass = null;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,18 +23,25 @@ namespace Birthday
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
 
             services.AddDbContext<BirthdayContext>(optionsBuilder =>
                 optionsBuilder.UseSqlServer(Configuration.GetConnectionString("BirthdayDb")));
 
             services.AddScoped<IBirthdayRepo, BirthdayRepo>();
             services.Configure<MailDetails>(Configuration.GetSection("Email"));
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //services.AddHostedService<TimedHostedService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -58,15 +58,12 @@ namespace Birthday
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
 
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
+            app.UseMvc(endpoints =>
             {
-                endpoints.MapControllerRoute(
+                endpoints.MapRoute(
                     name: "default",
-                    pattern: "{controller=Birthday}/{action=Index}/{id?}");
+                    template: "{controller=Birthday}/{action=Index}/{id?}");
             });
         }
     }

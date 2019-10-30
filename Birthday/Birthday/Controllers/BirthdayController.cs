@@ -7,6 +7,7 @@ using Birthday.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Birthday.Controllers
 {
     public class BirthdayController : Controller
@@ -17,7 +18,7 @@ namespace Birthday.Controllers
                birthdayRepo = repo ?? throw new ArgumentNullException(nameof(repo));
 
         // GET: Birthday
-        public ActionResult Index([FromQuery]string search = "")
+        public IActionResult Index([FromQuery]string search = "")
         {
             var employees = birthdayRepo.GetEmployees(search);
             var employeeModels = employees.Select(MapEToE);
@@ -139,7 +140,7 @@ namespace Birthday.Controllers
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             //Birthday = employee.Birthday,
-            Birthday = Convert.ToDateTime(employee.Month.ToString() +"/" + employee.Day.ToString() + "/1111")
+            Birthday = Convert.ToDateTime(employee.Month.ToString() + "/" + employee.Day.ToString() + "/1111")
         };
 
     }
