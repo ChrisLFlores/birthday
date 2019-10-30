@@ -20,9 +20,18 @@ namespace Birthday.Controllers
         // GET: Birthday
         public IActionResult Index([FromQuery]string search = "")
         {
-            var employees = birthdayRepo.GetEmployees(search);
-            var employeeModels = employees.Select(MapEToE);
-            return View(employeeModels);
+            try
+            {
+                var employees = birthdayRepo.GetEmployees(search);
+                var employeeModels = employees.Select(MapEToE);
+                return View(employeeModels);
+            }
+            catch (Exception)
+            {
+
+                return View();
+            }
+            
         }
 
         // GET: Birthday/Details/5
